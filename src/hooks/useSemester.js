@@ -80,14 +80,34 @@ export function useSemester(userId) {
   }
 
   async function archiveSemester(name) {
-    if (!semester) return
+  if (!semester) return
+  await supabase
+    .from('semesters')
+    .update({ is_active: false, name })
+    .eq('id', semester.id)
+  setSemester(null)
+  setEntries([])
+}
+
+  async function restoreSemester(semesterId) {
+  // deactivate and clear current active semester if any
+  if (semester) {
+    await supabase.from('entries').delete().eq('semester_id', semester.id)
     await supabase
       .from('semesters')
-      .update({ is_active: false, name })
-      .eq('id', semester.id)
-    setSemester(null)
-    setEntries([])
+      .update({ is_active: false })
+      .eq('user_id', userId)
+      .eq('is_active', true)
   }
 
-  return { semester, entries, loading, createSemester, addEntry, deleteEntry, archiveSemester, refetch: fetchActiveSemester }
+  // reactivate the chosen one
+  await supabase
+    .from('semesters')
+    .update({ is_active: true })
+    .eq('id', semesterId)
+
+  fetchActiveSemester()
+}
+
+  return { semester, entries, loading, createSemester, addEntry, deleteEntry, archiveSemester, restoreSemester, refetch: fetchActiveSemester }
 }

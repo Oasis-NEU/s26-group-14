@@ -1,14 +1,15 @@
-import Chart from './Chart'
-import Suggestions from './Suggestions'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useSemester } from '../hooks/useSemester'
 import { useBudgetCalc } from '../hooks/useBudgetCalc'
+import Chart from './Chart'
+import Suggestions from './Suggestions'
 
 export default function Dashboard({ session }) {
-  const { semester, entries, loading, createSemester, addEntry, deleteEntry, archiveSemester } = useSemester(session.user.id)
+  const { semester, entries, loading, createSemester, addEntry, deleteEntry, archiveSemester, restoreSemester } = useSemester(session.user.id)
   const calc = useBudgetCalc(semester, entries)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [archiveRefresh, setArchiveRefresh] = useState(0)
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -19,10 +20,8 @@ export default function Dashboard({ session }) {
   return (
     <div className="container">
 
-      {/* Drawer overlay */}
       {drawerOpen && <div className="drawer-overlay open" onClick={() => setDrawerOpen(false)} />}
 
-      {/* Drawer */}
       <div className={`drawer ${drawerOpen ? 'open' : ''}`}>
         <div className="drawer-header">
           <div className="drawer-title">Semester Settings</div>
@@ -30,7 +29,6 @@ export default function Dashboard({ session }) {
         </div>
         <div className="drawer-body">
 
-          {/* Semester config — always shown */}
           <div className="drawer-section">
             <div className="drawer-section-title">Configuration</div>
             <p className="drawer-note">
@@ -40,18 +38,28 @@ export default function Dashboard({ session }) {
             <SemesterConfig onSubmit={createSemester} current={semester} onClose={() => setDrawerOpen(false)} />
           </div>
 
-          {/* Danger zone */}
           <div className="drawer-section">
             <div className="drawer-section-title">Danger Zone</div>
             <p className="drawer-note">Clears current entries and settings. Archived semesters are preserved.</p>
             <ClearData userId={session.user.id} />
           </div>
 
-          {/* Archive list */}
           <div className="drawer-section">
-            <div className="drawer-section-title">About the Archive</div>
-            <p className="drawer-note">Archived semesters are saved snapshots. Use the Archive bar on the main page to save the current one.</p>
-            <ArchiveList userId={session.user.id} />
+            <div className="drawer-section-title">Semester Archive</div>
+            <p className="drawer-note">Use the Archive bar on the main page to save the current semester.</p>
+            <ArchiveList
+              userId={session.user.id}
+              refresh={archiveRefresh}
+              onRestore={async (id) => {
+                if (semester) {
+                  const ok = window.confirm('Restoring this semester will clear your current entries. Continue?')
+                  if (!ok) return
+                }
+                await restoreSemester(id)
+                setDrawerOpen(false)
+              }}
+              onDelete={() => setArchiveRefresh(r => r + 1)}
+            />
           </div>
 
         </div>
@@ -82,7 +90,7 @@ export default function Dashboard({ session }) {
         </div>
       </div>
 
-      {/* Setup banner — only when no semester */}
+      {/* Setup banner */}
       {!semester && (
         <div className="setup-banner">
           <div style={{ flex: 1 }}>
@@ -97,13 +105,16 @@ export default function Dashboard({ session }) {
 
       {semester && calc && (
         <>
-          {/* Log form */}
           <LogForm onSubmit={addEntry} />
 
-          {/* Archive row */}
-          <ArchiveRow semester={semester} onArchive={archiveSemester} />
+          <ArchiveRow
+            semester={semester}
+            onArchive={async (name) => {
+              await archiveSemester(name)
+              setArchiveRefresh(r => r + 1)
+            }}
+          />
 
-          {/* Stats */}
           <div className="stats">
             <div className="stat">
               <div className="stat-label">Starting Budget</div>
@@ -136,7 +147,6 @@ export default function Dashboard({ session }) {
             </div>
           </div>
 
-          {/* Chart + transaction log */}
           <div className="chart-log-grid">
             <Chart calc={calc} semester={semester} />
             <div className="mini-log">
@@ -156,6 +166,7 @@ export default function Dashboard({ session }) {
               </div>
             </div>
           </div>
+
           <Suggestions calc={calc} />
         </>
       )}
@@ -308,31 +319,77 @@ function ClearData({ userId }) {
   )
 }
 
-function ArchiveList({ userId }) {
+function ArchiveList({ userId, refresh, onRestore, onDelete }) {
   const [archives, setArchives] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
 
-  // load on mount
-  useState(() => {
+  useEffect(() => {
     supabase
       .from('semesters')
-      .select('*')
+      .select('*, entries(amount)')
       .eq('user_id', userId)
       .eq('is_active', false)
       .order('created_at', { ascending: false })
       .then(({ data }) => setArchives(data || []))
-  }, [userId])
+  }, [userId, refresh])
+
+  async function handleDelete(id) {
+    // delete entries first, then the semester
+    await supabase.from('entries').delete().eq('semester_id', id)
+    await supabase.from('semesters').delete().eq('id', id)
+    setArchives(prev => prev.filter(a => a.id !== id))
+    setDeletingId(null)
+    onDelete()
+  }
 
   if (!archives.length) return <p className="archive-empty">No archived semesters yet.</p>
 
   return (
-    <div className="archive-grid">
-      {archives.map(sem => (
-        <div key={sem.id} className="archive-card">
-          <div className="archive-card-name">{sem.name}</div>
-          <div className="archive-card-dates">{sem.start_date} – {sem.end_date}</div>
-          <div className="archive-card-stat">Budget: <span>${parseFloat(sem.budget).toFixed(2)}</span></div>
-        </div>
-      ))}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {archives.map(sem => {
+        const totalDays = Math.round((new Date(sem.end_date) - new Date(sem.start_date)) / 86400000)
+        const totalSpent = (sem.entries || []).reduce((s, e) => s + parseFloat(e.amount), 0)
+        const finalBalance = parseFloat(sem.budget) - totalSpent
+        const pctSpent = ((totalSpent / sem.budget) * 100).toFixed(1)
+        const avgWeek = (totalSpent / (totalDays / 7)).toFixed(2)
+        const expWeek = (sem.budget / (totalDays / 7)).toFixed(2)
+        const under = finalBalance >= 0
+        const isDeleting = deletingId === sem.id
+
+        return (
+          <div key={sem.id} className="archive-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.2rem' }}>
+              <div className="archive-card-name">{sem.name}</div>
+              <button
+                className="archive-card-del"
+                style={{ position: 'static', fontSize: '0.6rem', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0.2rem' }}
+                onClick={() => setDeletingId(isDeleting ? null : sem.id)}
+              >✕</button>
+            </div>
+
+            {isDeleting && (
+              <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.58rem', color: 'var(--red)', flex: 1 }}>Delete permanently?</span>
+                <button className="btn btn-danger" style={{ fontSize: '0.55rem', padding: '0.2rem 0.5rem' }} onClick={() => handleDelete(sem.id)}>Yes</button>
+                <button className="btn btn-ghost" style={{ fontSize: '0.55rem', padding: '0.2rem 0.5rem' }} onClick={() => setDeletingId(null)}>No</button>
+              </div>
+            )}
+
+            <div className="archive-card-dates">{sem.start_date} – {sem.end_date}</div>
+            <div className="archive-card-stat">Budget: <span>${parseFloat(sem.budget).toFixed(2)}</span></div>
+            <div className="archive-card-stat">Total spent: <span className="down">${totalSpent.toFixed(2)}</span> ({pctSpent}%)</div>
+            <div className="archive-card-stat">Final balance: <span className={under ? 'up' : 'down'}>${finalBalance.toFixed(2)}</span></div>
+            <div className="archive-card-stat">Avg/week: <span className={parseFloat(avgWeek) <= parseFloat(expWeek) ? 'up' : 'down'}>${avgWeek}</span> vs ${expWeek} expected</div>
+            <div className="archive-card-stat">Transactions: <span>{(sem.entries || []).length}</span></div>
+
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.75rem' }}>
+              <button className="btn-blue" style={{ flex: 1 }} onClick={() => onRestore(sem.id)}>
+                ↩ Restore
+              </button>
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

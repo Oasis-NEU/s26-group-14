@@ -216,3 +216,36 @@ svg#chart { width: 100%; height: auto; display: block; cursor: crosshair; }
 .tt-txn { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.65rem; }
 .tt-txn-lbl { color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
 .tt-txn-amt { color: var(--red); white-space: nowrap; font-weight: 600; }
+
+@media (max-width: 480px) {
+  body { padding: 1rem; }
+
+  /* Stack log form vertically */
+  .log-form-row { flex-direction: column; }
+  .log-form-row .form-row { min-width: unset; width: 100%; }
+  .log-form-row .btn { width: 100%; margin-top: 0.25rem; }
+
+  /* Stats 2 columns */
+  .stats { grid-template-columns: repeat(2, 1fr); }
+
+  /* Chart stacks above log */
+  .chart-log-grid { grid-template-columns: 1fr; }
+
+  /* Bigger touch targets */
+  .btn, .btn-primary, .btn-ghost, .btn-danger, .btn-blue, .btn-yellow {
+    min-height: 44px;
+    font-size: 0.75rem;
+  }
+  .mini-entry-del { min-width: 32px; min-height: 32px; font-size: 0.75rem; }
+
+  /* Full width drawer */
+  .drawer { width: 100vw; right: -100vw; }
+
+  /* Archive row stacks */
+  .archive-row { flex-direction: column; align-items: stretch; }
+  .archive-row-label { margin-bottom: 0.25rem; }
+
+  /* Verdict wraps better */
+  .verdict { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .verdict-text { font-size: 0.62rem; }
+}

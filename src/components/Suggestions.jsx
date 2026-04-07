@@ -54,7 +54,7 @@ OFF CAMPUS (nearby):
 
 const SWIPE_LOCATIONS = [
   { name: 'Stetson East', tag: 'Dining Hall · Meal Swipes', desc: 'All-you-can-eat dining hall on the East side of campus. Wide variety of stations — grill, deli, pizza, and salad bar.' },
-  { name: 'International Village', tag: 'Dining Hall · Meal Swipes', desc: 'Large dining hall near Columbus Ave with a global cuisine focus. One of the main all-you-can-eat spots on campus.' },
+  { name: 'International Village', tag: 'Dining Hall · Meal Swipes', desc: 'Large (and best by far) dining hall near Columbus Ave with a global cuisine focus. One of the main all-you-can-eat spots on campus.' },
   { name: '60 Belvidere', tag: 'Dining Hall · Meal Swipes', desc: 'Smaller residential dining hall near the Fenway area. All-you-can-eat with rotating menus.' },
   { name: 'Outtakes', tag: 'Grab & Go · Meal Swipes', desc: 'Grab-and-go dining that accepts meal swipes. Pre-packaged meals, sandwiches, snacks, drinks, and grocery-style items.' },
 ]
