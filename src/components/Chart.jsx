@@ -58,7 +58,7 @@ export default function Chart({ calc, semester }) {
 
       <div className="legend">
         <div className="legend-item">
-          <svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="#1a3040" strokeWidth="1.5" strokeDasharray="4 3" /></svg>
+          <svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="#3387bb" strokeWidth="1.5" strokeDasharray="4 3" /></svg>
           Ideal rate
         </div>
         <div className="legend-item">
@@ -161,7 +161,7 @@ function drawChart(svg, calc, semester, showBestFit, setTooltip, setTooltipPos) 
   }
 
   // Ideal line
-  el('line', { x1: xS(0), y1: yS(startBudget), x2: xS(totalDays), y2: yS(0), stroke: '#1a3040', 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }, svg)
+  el('line', { x1: xS(0), y1: yS(startBudget), x2: xS(totalDays), y2: yS(0), stroke: '#3387bb', 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }, svg)
 
   // Gradient fill + actual line
   if (dataPoints.length > 1) {
