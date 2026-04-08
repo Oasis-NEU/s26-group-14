@@ -41,7 +41,15 @@ export default function Chart({ calc, semester }) {
           <div className="tt-ideal">Ideal balance: <span>${tooltip.ideal}</span></div>
           <div className="tt-actual">{tooltip.projected ? 'Projected' : 'Your'} balance: <span>${tooltip.actual}</span></div>
           {tooltip.bestFit && <div className="tt-bestfit">Trend line: <span>${tooltip.bestFit}</span></div>}
-          {tooltip.spent && <div className="tt-spent">Spent: <span>-${tooltip.spent}</span></div>}
+          {tooltip.dayEntries && tooltip.dayEntries.map((e, i) => (
+            <div key={i} className="tt-txn">
+              <span className="tt-txn-lbl">{e.label || '(unlabeled)'}</span>
+              <span className="tt-txn-amt">-${parseFloat(e.amount).toFixed(2)}</span>
+            </div>
+          ))}
+          {tooltip.dayEntries && tooltip.dayEntries.length > 1 && (
+            <div className="tt-spent">Total: <span>-${tooltip.dayEntries.reduce((s,e) => s + parseFloat(e.amount), 0).toFixed(2)}</span></div>
+          )}
           <div className={`tt-diff ${tooltip.diff >= 0 ? 'good' : 'bad'}`}>
             {tooltip.diff >= 0 ? '▲' : '▼'} ${Math.abs(tooltip.diff).toFixed(2)} {tooltip.diff >= 0 ? 'under' : 'over'} budget
           </div>
@@ -79,7 +87,7 @@ export default function Chart({ calc, semester }) {
 function drawChart(svg, calc, semester, showBestFit, setTooltip, setTooltipPos) {
   svg.innerHTML = ''
 
-  const { dataPoints, eventByDay, totalDays, dayNow, startDate } = calc
+  const { dataPoints, eventByDay, totalDays, dayNow, startDate, sortedEntries } = calc
   const startBudget = parseFloat(semester.budget)
   const last = dataPoints[dataPoints.length - 1]
   const dailyActual = (startBudget - last.balance) / (last.day || 1)
@@ -198,16 +206,17 @@ function drawChart(svg, calc, semester, showBestFit, setTooltip, setTooltipPos) 
       dot.setAttribute('opacity', '1')
       ;[hL, hI, hA, hB].forEach(x => x.setAttribute('visibility', 'hidden'))
 
-      const spent = eventByDay[p.day]
       const hd = new Date(sd); hd.setDate(hd.getDate() + p.day)
+      const dayEntries = sortedEntries.filter(e =>
+        Math.round((new Date(e.date) - new Date(semester.start_date)) / 86400000) === p.day
+      )
 
       setTooltip({
         date: fmtDate(hd),
         day: p.day,
         actual: p.balance.toFixed(2),
         ideal: idealAt(p.day).toFixed(2),
-        spent: spent ? spent.toFixed(2) : null,
-        bestFit: null,
+        dayEntries,
         diff: p.balance - idealAt(p.day),
         projected: false
       })

@@ -60,62 +60,62 @@ const SWIPE_LOCATIONS = [
 ]
 
 function buildPrompt(calc) {
-  const { balance, diff, avgWeek, expWeek, daysLeft, isUnder } = calc
+  const { balance, diff, avgWeekSpend, expWeekSpend, daysLeft, isUnder } = calc
   const overBy = -diff
-
-  const status = `
-- Balance: $${balance.toFixed(2)}
-- Spending $${avgWeek}/wk vs expected $${expWeek}/wk
-- ${daysLeft} days left in the semester
-`.trim()
 
   const slightlyOver = overBy > 0 && overBy <= 10
   const significantlyOver = overBy > 10
 
   if (isUnder) {
-    return `You are a helpful dining advisor for a Northeastern University student in Boston.
+    return `You are a helpful dining advisor for a Northeastern University student in Boston. Speak directly to the student in second person (you/your).
 
-The student uses dining dollars (a prepaid campus meal plan balance). Their current status:
-${status}
-- $${Math.abs(diff).toFixed(2)} UNDER their ideal spending pace — they have some extra room
+  Your current dining dollar status:
+  - Balance: $${balance.toFixed(2)}
+  - You are $${Math.abs(diff).toFixed(2)} UNDER your ideal spending pace — you have some extra room
+  - You are spending $${avgWeekSpend}/wk vs your expected $${expWeekSpend}/wk
+  - You have ${daysLeft} days left in the semester
 
-IMPORTANT: You MUST only suggest places from the following verified list. Do not suggest any place not on this list.
-${DINING_DOLLAR_PLACES}
+  IMPORTANT: You MUST only suggest places from the following verified list. Do not suggest any place not on this list.
+  ${DINING_DOLLAR_PLACES}
 
-Pick 3–4 places that fit the student's budget. For each give: name and location, a suggested item or meal with its approximate price range (e.g. $8–$12), and one sentence on why it's a good pick right now. Aim for variety — mix on-campus and off-campus if possible. Budget per meal: around $${Math.min(15, Math.max(6, diff)).toFixed(0)}–$${Math.min(22, Math.max(10, diff + 6)).toFixed(0)}.`
-  }
+  Pick 3–4 places that fit your budget. For each give: name and location, a suggested item or meal with its approximate price range (e.g. $8–$12), and one sentence on why it's a good pick for you right now. Aim for variety — mix on-campus and off-campus if possible. Budget per meal: around $${Math.min(15, Math.max(6, diff)).toFixed(0)}–$${Math.min(22, Math.max(10, diff + 6)).toFixed(0)}.`
+    }
 
-  if (slightlyOver) {
-    return `You are a helpful dining advisor for a Northeastern University student in Boston.
+    if (slightlyOver) {
+      return `You are a helpful dining advisor for a Northeastern University student in Boston. Speak directly to the student in second person (you/your).
 
-The student uses dining dollars (a prepaid campus meal plan balance). Their current status:
-${status}
-- $${overBy.toFixed(2)} OVER their ideal spending pace — only slightly, but worth watching
+  Your current dining dollar status:
+  - Balance: $${balance.toFixed(2)}
+  - You are $${overBy.toFixed(2)} OVER your ideal spending pace — only slightly, but worth watching
+  - You are spending $${avgWeekSpend}/wk vs your expected $${expWeekSpend}/wk
+  - You have ${daysLeft} days left in the semester
 
-They are only slightly over budget, so still suggest 2–3 dining dollar spots — but pick cheaper options. For each give: name and location, a suggested item or meal with its approximate price range (e.g. $6–$9). Also include a short friendly heads-up (1–2 sentences) recommending they start mixing in more meal swipes. Meal swipe locations: Stetson East, International Village, 60 Belvidere (all-you-can-eat), and Outtakes (grab-and-go).
+  You are only slightly over budget, so here are 2–3 dining dollar spots you can still use — but stick to cheaper options. For each give: name and location, a suggested item or meal with its approximate price range (e.g. $6–$9). Also include a short friendly heads-up (1–2 sentences) recommending you start mixing in more meal swipes to avoid falling further behind. Meal swipe locations: Stetson East, International Village, 60 Belvidere (all-you-can-eat), and Outtakes (grab-and-go).
 
-IMPORTANT: You MUST only suggest dining dollar places from the following verified list.
-${DINING_DOLLAR_PLACES}
+  IMPORTANT: You MUST only suggest dining dollar places from the following verified list.
+  ${DINING_DOLLAR_PLACES}
 
-Keep the tone friendly and practical — not alarming.`
-  }
+  Keep the tone friendly and practical — not alarming.`
+    }
 
-  return `You are a helpful dining advisor for a Northeastern University student in Boston.
+    return `You are a helpful dining advisor for a Northeastern University student in Boston. Speak directly to the student in second person (you/your).
 
-The student uses dining dollars (a prepaid campus meal plan balance). Their current status:
-${status}
-- $${overBy.toFixed(2)} OVER their ideal spending pace — they are spending too fast
+  Your current dining dollar status:
+  - Balance: $${balance.toFixed(2)}
+  - You are $${overBy.toFixed(2)} OVER your ideal spending pace — you are spending too fast
+  - You are spending $${avgWeekSpend}/wk vs your expected $${expWeekSpend}/wk
+  - You have ${daysLeft} days left in the semester
 
-They should switch primarily to meal swipes to conserve dining dollars. Meal swipe locations:
-- Stetson East: all-you-can-eat dining hall, east side of campus
-- International Village: large all-you-can-eat dining hall near Columbus Ave
-- 60 Belvidere: smaller residential dining hall near Fenway
-- Outtakes: grab-and-go, accepts meal swipes — pre-packaged meals, sandwiches, snacks, groceries
+  You should switch primarily to meal swipes to conserve your dining dollars. Your meal swipe locations:
+  - Stetson East: all-you-can-eat dining hall, east side of campus
+  - International Village: large all-you-can-eat dining hall near Columbus Ave
+  - 60 Belvidere: smaller residential dining hall near Fenway
+  - Outtakes: grab-and-go, accepts meal swipes — pre-packaged meals, sandwiches, snacks, groceries
 
-Also, if they do need to spend dining dollars, suggest 1–2 cheaper options from this verified list with approximate price ranges (e.g. $5–$8):
-${DINING_DOLLAR_PLACES}
+  Also, if you do need to spend dining dollars, here are 1–2 cheaper options with approximate price ranges (e.g. $5–$8):
+  ${DINING_DOLLAR_PLACES}
 
-Give 2–3 practical tips on switching to meal swipes, and suggest which location suits which scenario. Keep it friendly and direct.`
+  Give 2–3 practical tips on how you can switch to meal swipes to stretch your remaining dining dollars, and suggest which location suits which scenario. Keep it friendly and direct.`
 }
 
 export default function Suggestions({ calc, session }) {
