@@ -362,7 +362,7 @@ function ArchiveList({ userId, refresh, onRestore, onDelete }) {
               <div className="archive-card-name">{sem.name}</div>
               <button
                 className="archive-card-del"
-                style={{ position: 'static', fontSize: '0.6rem', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0.2rem' }}
+                style={{ position: 'static', fontSize: '1.1rem', color: 'var(--red)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0.2rem' }}
                 onClick={() => setDeletingId(isDeleting ? null : sem.id)}
               >✕</button>
             </div>
