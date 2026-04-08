@@ -119,7 +119,7 @@ Give 2–3 practical tips on switching to meal swipes, and suggest which locatio
 }
 
 export default function Suggestions({ calc, session }) {
-  const [output, setOutput] = useState('')
+  const [output, setOutput] = useState('Hit "Get Suggestions" for AI-powered dining recommendations based on your current budget.')
   const [outputClass, setOutputClass] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -169,15 +169,15 @@ export default function Suggestions({ calc, session }) {
       {calc && (
         <div className="suggest-context">
           {calc.isUnder
-            ? <>You are <span className="up">${Math.abs(calc.diff).toFixed(2)} under budget</span> — spending <span className="up">${calc.avgWeek}/wk</span> vs expected <span className="dim">${calc.expWeek}/wk</span>. Balance: <span className="up">${calc.balance.toFixed(2)}</span> with <span className="dim">{calc.daysLeft} days left</span>.</>
-            : <>You are <span className="down">${Math.abs(calc.diff).toFixed(2)} over budget</span> — spending <span className="down">${calc.avgWeek}/wk</span> vs expected <span className="dim">${calc.expWeek}/wk</span>. Balance: <span className="down">${calc.balance.toFixed(2)}</span> with <span className="dim">{calc.daysLeft} days left</span>.</>
+            ? <>You are <span className="up">${Math.abs(calc.diff).toFixed(2)} under budget</span> — spending <span className="up">${calc.avgWeekSpend}/wk</span> vs expected <span className="dim">${calc.expWeekSpend}/wk</span>. Balance: <span className="up">${calc.balance.toFixed(2)}</span> with <span className="dim">{calc.daysLeft} days left</span>.</>
+            : <>You are <span className="down">${Math.abs(calc.diff).toFixed(2)} over budget</span> — spending <span className="down">${calc.avgWeekSpend}/wk</span> vs expected <span className="dim">${calc.expWeekSpend}/wk</span>. Balance: <span className="down">${calc.balance.toFixed(2)}</span> with <span className="dim">{calc.daysLeft} days left</span>.</>
           }
         </div>
       )}
 
       {/* Output */}
       <div className={outputClass || 'suggest-output'}>
-        {output || 'Enter your Groq API key above, then hit "Get Suggestions" for AI-powered dining recommendations.'}
+        {output || 'Hit "Get Suggestions" for AI-powered dining recommendations based on your current budget.'}
       </div>
 
       <hr className="suggest-divider" />
