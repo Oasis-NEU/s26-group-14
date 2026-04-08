@@ -57,7 +57,7 @@ export default function Auth() {
       </form>
       <p style={{ marginTop: '1rem', textAlign: 'center' }}>
         {isLogin ? "Don't have an account? " : 'Already have an account? '}
-        <button onClick={() => setIsLogin(!isLogin)} style={{ color: 'green',background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+        <button onClick={() => setIsLogin(!isLogin)} style={{ color: 'var(--accent)',background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
           {isLogin ? 'Sign up' : 'Log in'}
         </button>
       </p>
