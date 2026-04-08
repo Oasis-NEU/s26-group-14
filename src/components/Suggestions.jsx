@@ -118,7 +118,7 @@ ${DINING_DOLLAR_PLACES}
 Give 2–3 practical tips on switching to meal swipes, and suggest which location suits which scenario. Keep it friendly and direct.`
 }
 
-export default function Suggestions({ calc }) {
+export default function Suggestions({ calc, session }) {
   const [output, setOutput] = useState('')
   const [outputClass, setOutputClass] = useState('')
   const [loading, setLoading] = useState(false)
@@ -138,7 +138,7 @@ export default function Suggestions({ calc }) {
     const response = await fetch('/api/suggestions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: buildPrompt(calc) })
+      body: JSON.stringify({ prompt: buildPrompt(calc), userId: session.user.id })
     })
 
     const data = await response.json()

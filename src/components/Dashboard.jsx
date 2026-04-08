@@ -167,7 +167,7 @@ export default function Dashboard({ session }) {
             </div>
           </div>
 
-          <Suggestions calc={calc} />
+          <Suggestions calc={calc} session={session} />
         </>
       )}
     </div>
