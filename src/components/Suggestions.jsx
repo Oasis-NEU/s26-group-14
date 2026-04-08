@@ -119,65 +119,41 @@ Give 2–3 practical tips on switching to meal swipes, and suggest which locatio
 }
 
 export default function Suggestions({ calc }) {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('groqApiKey') || '')
   const [output, setOutput] = useState('')
   const [outputClass, setOutputClass] = useState('')
   const [loading, setLoading] = useState(false)
 
-  function handleKeyChange(val) {
-    setApiKey(val)
-    localStorage.setItem('groqApiKey', val)
-  }
-
   async function getSuggestions() {
-    if (!apiKey.trim()) {
-      setOutputClass('suggest-output err')
-      setOutput('Please enter your Groq API key first.')
-      return
-    }
-    if (!calc) {
-      setOutputClass('suggest-output err')
-      setOutput('Configure semester settings before getting suggestions.')
-      return
-    }
-
-    setLoading(true)
-    setOutputClass('suggest-output loading')
-    setOutput('Asking Groq for recommendations...')
-
-    try {
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey.trim()}`
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
-          messages: [{ role: 'user', content: buildPrompt(calc) }],
-          max_tokens: 600,
-          temperature: 0.7
-        })
-      })
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}))
-        throw new Error(err.error?.message || `API error ${response.status}`)
-      }
-
-      const data = await response.json()
-      const text = data.choices?.[0]?.message?.content?.trim()
-      if (!text) throw new Error('No response from Groq. Check your API key.')
-
-      setOutputClass('suggest-output')
-      setOutput(text)
-    } catch (err) {
-      setOutputClass('suggest-output err')
-      setOutput('Error: ' + err.message)
-    } finally {
-      setLoading(false)
-    }
+  if (!calc) {
+    setOutputClass('suggest-output err')
+    setOutput('Configure semester settings before getting suggestions.')
+    return
   }
+
+  setLoading(true)
+  setOutputClass('suggest-output loading')
+  setOutput('Asking for recommendations...')
+
+  try {
+    const response = await fetch('/api/suggestions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: buildPrompt(calc) })
+    })
+
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Server error')
+    if (!data.text) throw new Error('No response received.')
+
+    setOutputClass('suggest-output')
+    setOutput(data.text)
+  } catch (err) {
+    setOutputClass('suggest-output err')
+    setOutput('Error: ' + err.message)
+  } finally {
+    setLoading(false)
+  }
+}
 
   return (
     <div className="panel" style={{ marginBottom: '1.2rem' }}>
@@ -198,22 +174,6 @@ export default function Suggestions({ calc }) {
           }
         </div>
       )}
-
-      {/* API key input */}
-      <div className="form-row">
-        <label>
-          Groq API Key —{' '}
-          <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>
-            get one free at console.groq.com
-          </a>
-        </label>
-        <input
-          type="password"
-          value={apiKey}
-          onChange={e => handleKeyChange(e.target.value)}
-          placeholder="Paste your Groq API key here"
-        />
-      </div>
 
       {/* Output */}
       <div className={outputClass || 'suggest-output'}>
