@@ -26,7 +26,7 @@ export default function Chart({ calc, semester }) {
   return (
     <div className="chart-wrap" style={{ marginBottom: 0, position: 'relative' }}>
       <div className="chart-header">
-        <span className="chart-title">Balance over time · hover dots for detail</span>
+        <span className="chart-title">Balance over time · hover over dots for detail</span>
         <label className="toggle-label">
           <input type="checkbox" checked={showBestFit} onChange={e => setShowBestFit(e.target.checked)} />
           Show trend line
@@ -145,7 +145,7 @@ function drawChart(svg, calc, semester, showBestFit, setTooltip, setTooltipPos) 
   }
 
   // Month ticks
-  const sd = new Date(semester.start_date)
+  const sd = new Date(semester.start_date + 'T00:00:00')
   const ed = new Date(semester.end_date)
   const months = [{ label: fmtDate(sd), day: 0 }]
   const cur = new Date(sd); cur.setDate(1); cur.setMonth(cur.getMonth() + 1)
@@ -206,7 +206,7 @@ function drawChart(svg, calc, semester, showBestFit, setTooltip, setTooltipPos) 
       dot.setAttribute('opacity', '1')
       ;[hL, hI, hA, hB].forEach(x => x.setAttribute('visibility', 'hidden'))
 
-      const hd = new Date(sd); hd.setDate(hd.getDate() + p.day)
+      const hd = new Date(sd.getTime() + p.day * 86400000)
       const dayEntries = sortedEntries.filter(e =>
         Math.round((new Date(e.date) - new Date(semester.start_date)) / 86400000) === p.day
       )
@@ -235,8 +235,39 @@ function drawChart(svg, calc, semester, showBestFit, setTooltip, setTooltipPos) 
     })
   }
 
-  // Now dot
-  el('circle', { cx: xS(last.day), cy: yS(last.balance), r: 6, fill: '#00d4aa', stroke: '#080c0e', 'stroke-width': 2 }, svg)
+  // Now dot — hoverable
+  const nowDot = el('circle', { cx: xS(last.day), cy: yS(last.balance), r: 6, fill: '#00d4aa', stroke: '#080c0e', 'stroke-width': 2, style: 'cursor:pointer' }, svg)
+
+  const nowEntries = sortedEntries.filter(e =>
+    Math.round((new Date(e.date + 'T00:00:00') - new Date(semester.start_date + 'T00:00:00')) / 86400000) === last.day
+  )
+
+  nowDot.addEventListener('mouseenter', ev => {
+    hoveringDot = true
+    nowDot.setAttribute('r', '8')
+    ;[hL, hI, hA, hB].forEach(x => x.setAttribute('visibility', 'hidden'))
+    const hd = new Date(new Date(semester.start_date + 'T00:00:00').getTime() + last.day * 86400000)
+    setTooltip({
+      date: fmtDate(hd),
+      day: last.day,
+      actual: last.balance.toFixed(2),
+      ideal: idealAt(last.day).toFixed(2),
+      dayEntries: nowEntries,
+      diff: last.balance - idealAt(last.day),
+      projected: false
+    })
+    setTooltipPos({ x: ev.clientX + 16, y: ev.clientY - 16 })
+  })
+
+  nowDot.addEventListener('mousemove', ev => {
+    setTooltipPos({ x: ev.clientX + 16, y: ev.clientY - 16 })
+  })
+
+  nowDot.addEventListener('mouseleave', () => {
+    hoveringDot = false
+    nowDot.setAttribute('r', '6')
+    setTooltip(null)
+  })
   const lx = xS(last.day)
   const anch = lx + 90 > W ? 'end' : 'start'
   el('text', { x: lx + (anch === 'end' ? -10 : 10), y: yS(last.balance) - 10, fill: '#00d4aa', 'font-size': 9, 'text-anchor': anch, 'font-family': 'IBM Plex Mono, monospace' }, svg).textContent = 'NOW $' + last.balance.toFixed(2)
@@ -254,7 +285,7 @@ function drawChart(svg, calc, semester, showBestFit, setTooltip, setTooltipPos) 
     const isProj = day > last.day
     const ns2 = eventByDay[Math.round(day)]
     const bfV = (reg && showBestFit) ? reg.at(day) : null
-    const hd = new Date(sd); hd.setDate(hd.getDate() + Math.round(day))
+    const hd = new Date(sd.getTime() + Math.round(day) * 86400000)
 
     hL.setAttribute('x1', xPx); hL.setAttribute('x2', xPx); hL.setAttribute('visibility', 'visible')
     hI.setAttribute('cx', xPx); hI.setAttribute('cy', yS(ideal)); hI.setAttribute('visibility', 'visible')
