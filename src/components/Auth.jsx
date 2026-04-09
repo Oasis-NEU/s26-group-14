@@ -29,7 +29,7 @@ export default function Auth() {
 
   return (
     <div style={{ maxWidth: 400, margin: '100px auto', padding: '2rem' }}>
-      <h1 style={{ marginBottom: '1.5rem' }}>Budget Tracker</h1>
+      <h1 style={{ marginBottom: '1.5rem' }}>HowlMuch</h1>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1rem' }}>
           <input
