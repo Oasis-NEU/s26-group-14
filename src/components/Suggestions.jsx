@@ -92,7 +92,7 @@ function buildPrompt(calc) {
 
   You are only slightly over budget, so here are 2–3 dining dollar spots you can still use — but stick to cheaper options. For each give: name and location, a suggested item or meal with its approximate price range (e.g. $6–$9). Also include a short friendly heads-up (1–2 sentences) recommending you start mixing in more meal swipes to avoid falling further behind. Meal swipe locations: Stetson East, International Village, 60 Belvidere (all-you-can-eat), and Outtakes (grab-and-go).
 
-  IMPORTANT: You MUST only suggest dining dollar places from the following verified list.
+  IMPORTANT: You MUST only suggest dining dollar places from the following verified list. However, do not mention this list in the response.
   ${DINING_DOLLAR_PLACES}
 
   Keep the tone friendly and practical — not alarming.`
@@ -159,7 +159,7 @@ export default function Suggestions({ calc, session }) {
     <div className="panel" style={{ marginBottom: '1.2rem' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.6rem' }}>
-        <div className="panel-title" style={{ marginBottom: 0 }}>Dining Suggestions</div>
+        <div className="panel-title" style={{ marginBottom: 0 }}>Dining Suggestions (limit of 5 per day)</div>
         <button className="btn-yellow" onClick={getSuggestions} disabled={loading}>
           {loading ? 'Loading...' : '✦ Get Suggestions'}
         </button>
