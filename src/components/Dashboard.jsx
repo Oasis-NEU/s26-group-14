@@ -68,7 +68,10 @@ export default function Dashboard({ session }) {
       {/* Header */}
       <div className="header">
         <div className="header-left">
-          <h1>HowlMuch</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.2rem' }}>
+            <img src="/logo.png" alt="HowlMuch" style={{ height: '40px', width: 'auto' }} />
+            <h1>HowlMuch</h1>
+          </div>
           <div className="ticker-bar">
             <span className="ticker-sym">
               {semester ? `${semester.name} · ${semester.start_date.slice(0,4)}` : 'Not configured'}
