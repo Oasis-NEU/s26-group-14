@@ -15,7 +15,7 @@ export default function Dashboard({ session }) {
     await supabase.auth.signOut()
   }
 
-  if (loading) return <p style={{ padding: '2rem', color: 'var(--text-dim)' }}>Loading...</p>
+  if (loading) return <p style={{ padding: '2rem', color: 'var(--text-dim)' }}>Made for Oasis @ Northeastern</p>
 
   return (
     <div className="container">
@@ -173,6 +173,9 @@ export default function Dashboard({ session }) {
           <Suggestions calc={calc} session={session} />
         </>
       )}
+      <div style={{ textAlign: 'center', padding: '2rem 0 1rem', fontSize: '0.8rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+        Made for Oasis @ Northeastern
+      </div>
     </div>
   )
 }
