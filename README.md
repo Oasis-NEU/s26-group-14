@@ -1,16 +1,20 @@
-# React + Vite
+HowlMuch
+A dining dollar budget tracker built for Northeastern University students. Track your spending, visualize your balance over time, and get AI-powered dining recommendations based on your current budget.
+Live at: howlmuch.vercel.app
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Features
 
-Currently, two official plugins are available:
+Spending log — add entries with a date, amount, and label
+Live stats — real-time balance, total spent, days left, and under/over budget verdict
+Chart — balance over time with ideal rate, trend line, projections, and hover tooltips
+Dining suggestions — AI recommendations from verified NU dining dollar locations, powered by Groq and Meta's Llama 3.1
+Semester management — archive and restore past semesters
+Auth — email/password login with data synced across devices
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## React Compiler
+Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Frontend — React + Vite
+Database + Auth — Supabase (Postgres + Row Level Security)
+Hosting — Vercel
+AI — Groq API running Meta's Llama 3.1 8B
