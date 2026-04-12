@@ -1,4 +1,4 @@
-HowlMuch
+**HowlMuch**
 A dining dollar budget tracker built for Northeastern University students. Track your spending, visualize your balance over time, and get AI-powered dining recommendations based on your current budget.
 Live at: howlmuch.vercel.app
 
