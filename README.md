@@ -15,7 +15,7 @@ A dining dollar budget tracker built for Northeastern University students. Track
 | 📈 Chart | Balance over time with ideal rate, trend line, projections, and hover tooltips |
 | 🍔 Dining Suggestions | AI recommendations from verified NU dining dollar locations |
 | 🗂 Semester Management | Archive and restore past semesters |
-
+| 🔐 Auth | Email/password login with data synced across devices |
 ---
 
 ## Stack
