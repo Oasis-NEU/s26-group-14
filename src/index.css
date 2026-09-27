@@ -181,6 +181,13 @@ svg#chart { width: 100%; height: auto; display: block; cursor: crosshair; }
 .suggest-output { font-size: 0.7rem; line-height: 1.85; color: var(--text); min-height: 2rem; white-space: pre-wrap; margin-bottom: 1rem; }
 .suggest-output.loading { color: var(--text-dim); font-style: italic; }
 .suggest-output.err { color: var(--red); }
+.suggest-para { margin-bottom: 0.9rem; }
+.suggest-para:last-child { margin-bottom: 0; }
+.suggest-list { padding-left: 1.2rem; margin-bottom: 0.9rem; }
+.suggest-list li { margin-bottom: 0.35rem; }
+.suggest-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.68rem; }
+.suggest-table th, .suggest-table td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; }
+.suggest-table th { color: var(--text-dim); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--bg); }
 .suggest-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
 .swipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 0.6rem; margin-top: 0.75rem; }
 .swipe-card { background: var(--bg); border: 1px solid var(--border); border-radius: 3px; padding: 0.75rem 0.9rem; }
