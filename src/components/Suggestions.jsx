@@ -59,6 +59,51 @@ const SWIPE_LOCATIONS = [
   { name: 'Outtakes', tag: 'Grab & Go · Meal Swipes', desc: 'Grab-and-go dining that accepts meal swipes. Pre-packaged meals, sandwiches, snacks, drinks, and grocery-style items.' },
 ]
 
+function renderMarkdown(text) {
+  const blocks = text.trim().split(/\n\s*\n/)
+
+  function inline(str, keyPrefix) {
+    const parts = str.split(/(\*\*[^*]+\*\*)/g)
+    return parts.map((part, i) =>
+      part.startsWith('**') && part.endsWith('**')
+        ? <strong key={`${keyPrefix}-${i}`}>{part.slice(2, -2)}</strong>
+        : <span key={`${keyPrefix}-${i}`}>{part}</span>
+    )
+  }
+
+  return blocks.map((block, bi) => {
+    const lines = block.split('\n').filter(l => l.trim())
+
+    // Table
+    if (lines.length >= 2 && lines[0].trim().startsWith('|') && /^\|?[\s-:|]+\|?$/.test(lines[1])) {
+      const header = lines[0].split('|').map(c => c.trim()).filter(Boolean)
+      const rows = lines.slice(2).map(l => l.split('|').map(c => c.trim()).filter(Boolean))
+      return (
+        <table className="suggest-table" key={bi}>
+          <thead><tr>{header.map((h, i) => <th key={i}>{inline(h, `${bi}-h${i}`)}</th>)}</tr></thead>
+          <tbody>
+            {rows.map((row, ri) => (
+              <tr key={ri}>{row.map((cell, ci) => <td key={ci}>{inline(cell, `${bi}-${ri}-${ci}`)}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      )
+    }
+
+    // Bullet list
+    if (lines.every(l => l.trim().startsWith('- '))) {
+      return (
+        <ul className="suggest-list" key={bi}>
+          {lines.map((l, li) => <li key={li}>{inline(l.trim().slice(2), `${bi}-${li}`)}</li>)}
+        </ul>
+      )
+    }
+
+    // Paragraph
+    return <p className="suggest-para" key={bi}>{inline(lines.join(' '), `${bi}-p`)}</p>
+  })
+}
+
 function buildPrompt(calc) {
   const { balance, diff, avgWeekSpend, expWeekSpend, daysLeft, isUnder } = calc
   const overBy = -diff
@@ -122,16 +167,19 @@ export default function Suggestions({ calc, session }) {
   const [output, setOutput] = useState('Hit "Get Suggestions" for AI-powered dining recommendations based on your current budget.')
   const [outputClass, setOutputClass] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resultReady, setResultReady] = useState(false)
 
   async function getSuggestions() {
   if (!calc) {
-    setOutputClass('suggest-output err')
-    setOutput('Configure semester settings before getting suggestions.')
-    return
+  setOutputClass('suggest-output err')
+  setResultReady(false)
+  setOutput('Configure semester settings before getting suggestions.')
+  return
   }
 
   setLoading(true)
   setOutputClass('suggest-output loading')
+  setResultReady(false)
   setOutput('Asking for recommendations...')
 
   try {
@@ -147,8 +195,10 @@ export default function Suggestions({ calc, session }) {
 
     setOutputClass('suggest-output')
     setOutput(data.text)
+    setResultReady(true)
   } catch (err) {
     setOutputClass('suggest-output err')
+    setResultReady(false)
     setOutput('Error: ' + err.message)
   } finally {
     setLoading(false)
@@ -177,7 +227,7 @@ export default function Suggestions({ calc, session }) {
 
       {/* Output */}
       <div className={outputClass || 'suggest-output'}>
-        {output || 'Hit "Get Suggestions" for AI-powered dining recommendations based on your current budget.'}
+        {resultReady ? renderMarkdown(output) : (output || 'Hit "Get Suggestions" for AI-powered dining recommendations based on your current budget.')}
       </div>
 
       <hr className="suggest-divider" />
