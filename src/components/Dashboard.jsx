@@ -108,7 +108,7 @@ export default function Dashboard({ session }) {
 
       {semester && calc && (
         <>
-          <LogForm onSubmit={addEntry} />
+          <LogForm onSubmit={addEntry} semester={semester} />
 
           <ArchiveRow
             semester={semester}
@@ -182,7 +182,7 @@ export default function Dashboard({ session }) {
 
 // ── Sub-components ────────────────────────────────────────────────────────
 
-function LogForm({ onSubmit }) {
+function LogForm({ onSubmit, semester }) {
   const [date, setDate] = useState(new Date().toISOString().slice(0,10))
   const [amount, setAmount] = useState('')
   const [label, setLabel] = useState('')
@@ -190,6 +190,12 @@ function LogForm({ onSubmit }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
+
+    if (semester && (date < semester.start_date || date > semester.end_date)) {
+      setMsg({ text: `Date must be between ${semester.start_date} and ${semester.end_date}.`, type: 'err' })
+      return
+    }
+
     const { error } = await onSubmit(date, parseFloat(amount), label)
     if (error) { setMsg({ text: 'Error: ' + error.message, type: 'err' }); return }
     setAmount('')
@@ -204,7 +210,8 @@ function LogForm({ onSubmit }) {
       <form onSubmit={handleSubmit} className="log-form-row">
         <div className="form-row">
           <label>Date</label>
-          <input type="date" value={date} onChange={e => setDate(e.target.value)} required />
+          <input type="date" value={date} onChange={e => setDate(e.target.value)}
+            min={semester?.start_date} max={semester?.end_date} required />
         </div>
         <div className="form-row">
           <label>Amount ($)</label>
